@@ -1,0 +1,35 @@
+# Frontend dependencies
+node_modules/
+.pnpm-debug.log*
+
+# pnpm specific
+.pnpm-store/
+
+# Web frontend build output (adjust based on your framework, e.g., Vite/Next.js)
+dist/
+build/
+.next/
+out/
+
+# Tauri/Rust build artifacts
+src-tauri/target/
+src-tauri/gen/
+src-tauri/binaries/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env*.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
