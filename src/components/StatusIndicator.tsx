@@ -20,7 +20,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status, elapse
       case 'recording': return '● Идет запись...';
       case 'paused': return '⏸ Запись на паузе';
       case 'processing': return '🔄 Обработка видео...';
-      default: return '● Готов к записи';
+      default: return 'Готов к записи';
     }
   };
   

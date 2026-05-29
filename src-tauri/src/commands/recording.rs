@@ -25,20 +25,24 @@ pub async fn start_recording(
         "low" => ("aac", "96k", "44100"),
         "medium" => ("aac", "192k", "48000"),
         "high" => ("aac", "320k", "48000"),
-        "lossless" => ("flac", "", "96000"),  // FLAC без указания битрейта
-        _ => ("aac", "192k", "48000"),  // По умолчанию среднее качество
+        "lossless" => ("flac", "", "96000"), // FLAC без указания битрейта
+        _ => ("aac", "192k", "48000"),       // По умолчанию среднее качество
     };
+    println!(
+        "Audio settings: codec={}, bitrate={}, rate={}",
+        audio_codec, audio_bitrate, sample_rate
+    );
 
-    let ffmpeg_check = Command::new("ffmpeg")
-        .arg("-version")
-        .output();
-    
+    let ffmpeg_check = Command::new("ffmpeg").arg("-version").output();
+
     match ffmpeg_check {
         Ok(output) if output.status.success() => {
             println!("FFmpeg is available");
         }
         _ => {
-            return Err("FFmpeg is not installed or not in PATH. Please install FFmpeg first.".to_string());
+            return Err(
+                "FFmpeg is not installed or not in PATH. Please install FFmpeg first.".to_string(),
+            );
         }
     }
 
@@ -355,20 +359,21 @@ pub async fn check_ffmpeg() -> Result<bool, String> {
     let output = std::process::Command::new("ffmpeg")
         .arg("-version")
         .output();
-    
+
     match output {
         Ok(output) => {
             if output.status.success() {
                 let version = String::from_utf8_lossy(&output.stdout);
-                println!("FFmpeg found: {}", version.lines().next().unwrap_or("unknown"));
+                println!(
+                    "FFmpeg found: {}",
+                    version.lines().next().unwrap_or("unknown")
+                );
                 Ok(true)
             } else {
                 Err("FFmpeg not responding".to_string())
             }
         }
-        Err(e) => {
-            Err(format!("FFmpeg not found: {}", e))
-        }
+        Err(e) => Err(format!("FFmpeg not found: {}", e)),
     }
 }
 
@@ -380,70 +385,65 @@ pub fn build_recording_command(
     grab_area: &str,
     record_audio: bool,
     audio_device: Option<&str>,
-    audio_codec: &str,  // Добавляем
+    audio_codec: &str,   // Добавляем
     audio_bitrate: &str, // Добавляем
     sample_rate: &str,   // Добавляем
 ) -> Command {
     let mut cmd = Command::new("ffmpeg");
-    
+
     // Видео вход
     cmd.arg("-f")
-       .arg("x11grab")
-       .arg("-framerate")
-       .arg(fps.to_string())
-       .arg("-video_size")
-       .arg(video_size)
-       .arg("-i")
-       .arg(grab_area);
-    
+        .arg("x11grab")
+        .arg("-framerate")
+        .arg(fps.to_string())
+        .arg("-video_size")
+        .arg(video_size)
+        .arg("-i")
+        .arg(grab_area);
+
     // Аудио вход
     if record_audio {
         let device = audio_device.unwrap_or("default");
-        cmd.arg("-f")
-           .arg("pulse")
-           .arg("-i")
-           .arg(device);
+        cmd.arg("-f").arg("pulse").arg("-i").arg(device);
     }
-    
+
     // Видео фильтр масштабирования
-    cmd.arg("-vf")
-       .arg(format!("scale={}:{}", 
-           video_size.split('x').next().unwrap_or("1920"),
-           video_size.split('x').nth(1).unwrap_or("1080")));
-    
+    cmd.arg("-vf").arg(format!(
+        "scale={}:{}",
+        video_size.split('x').next().unwrap_or("1920"),
+        video_size.split('x').nth(1).unwrap_or("1080")
+    ));
+
     // Аудио настройки
     if record_audio {
-        cmd.arg("-c:a")
-           .arg(audio_codec);
-        
+        cmd.arg("-c:a").arg(audio_codec);
+
         if audio_codec != "flac" {
-            cmd.arg("-b:a")
-               .arg(audio_bitrate);
+            cmd.arg("-b:a").arg(audio_bitrate);
         }
-        
-        cmd.arg("-ar")
-           .arg(sample_rate);
+
+        cmd.arg("-ar").arg(sample_rate);
     }
-    
+
     // Видео кодек
     cmd.arg("-c:v")
-       .arg("libx264")
-       .arg("-preset")
-       .arg("ultrafast")
-       .arg("-b:v")
-       .arg(bitrate)
-       .arg("-pix_fmt")
-       .arg("yuv420p");
-    
+        .arg("libx264")
+        .arg("-preset")
+        .arg("ultrafast")
+        .arg("-b:v")
+        .arg(bitrate)
+        .arg("-pix_fmt")
+        .arg("yuv420p");
+
     if record_audio {
         cmd.arg("-shortest");
     }
-    
+
     cmd.arg("-y")
-       .arg(output_path)
-       .stdin(Stdio::piped())
-       .stdout(Stdio::piped())
-       .stderr(Stdio::piped());
-    
+        .arg(output_path)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+
     cmd
 }

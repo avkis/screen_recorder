@@ -138,33 +138,7 @@ function App() {
     };
   }, []);
 
-  const getAudioBitrate = () => {
-  const bitrates = {
-    low: '96k',
-    medium: '192k',
-    high: '320k',
-    lossless: 'flac'
-  };
-  return bitrates[audioQuality as keyof typeof bitrates];
-};
-
-const getAudioCodec = () => {
-  if (audioQuality === 'lossless') {
-    return 'flac';
-  }
-  return 'aac';
-};
-
-const getSampleRate = () => {
-  const rates = {
-    low: '44100',
-    medium: '48000',
-    high: '48000',
-    lossless: '96000'
-  };
-  return rates[audioQuality as keyof typeof rates];
-};
-  
+ 
   const getQualityBitrate = () => {
     const bitrates = {
       low: '3000k',
@@ -224,7 +198,8 @@ const getSampleRate = () => {
       const timestamp = Date.now();
       startTimeRef.current = timestamp;
       setCurrentOutputPath(savePath);
-      
+
+     
       await invoke('start_recording', {
         fps,
         bitrate: getQualityBitrate(),
@@ -233,7 +208,7 @@ const getSampleRate = () => {
         recordAudio,
         audioDevice,
         monitorName: selectedMonitor,
-        audioQuality
+        audioQuality,
       });
       
       setIsRecording(true);
