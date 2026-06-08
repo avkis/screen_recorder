@@ -53,7 +53,7 @@ function App() {
   useEffect(() => {
     const getScreenSize = async () => {
       const window = getCurrentWindow();
-      const scaleFactor = await window.scaleFactor();
+      // const scaleFactor = await window.scaleFactor();
       const physicalSize = await window.innerSize();
       
       setScreenSize({

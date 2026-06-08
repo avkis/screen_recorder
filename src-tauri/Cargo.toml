@@ -32,3 +32,6 @@ tokio = {version = "1", features = ["sync"] }
 [features]
 custom-protocol = ["tauri/custom-protocol"]
 default = ["custom-protocol"]
+
+[http]
+check-revoke = false
